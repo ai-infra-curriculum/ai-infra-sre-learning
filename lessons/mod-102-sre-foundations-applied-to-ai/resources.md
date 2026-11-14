@@ -28,25 +28,24 @@ References grounded in authoritative public sources. Items that require version-
 
 ## vLLM (chapter 04)
 
-- Documentation home — <https://docs.vllm.ai/>.
-- Engine arguments reference — <https://docs.vllm.ai/en/latest/serving/engine_args.html>.
-- OpenAI-compatible server guide — <https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html>.
-- Metrics reference — <https://docs.vllm.ai/en/latest/serving/metrics.html>.
-- Automatic prefix caching — <https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html>.
-- Chunked prefill — <https://docs.vllm.ai/en/latest/features/chunked_prefill.html>.
-- Speculative decoding — <https://docs.vllm.ai/en/latest/features/spec_decode.html>.
-- Original PagedAttention paper (Kwon et al., 2023 — "Efficient Memory Management for Large Language Model Serving with PagedAttention") — <https://arxiv.org/abs/2309.06180>.
+URL paths were reorganized after v0.8.x; the pointers below reflect current `en/latest/` layout. For a version-pinned deployment, swap `latest` for the pinned release tag.
 
-<!-- needs-research: confirm each of the vLLM docs URLs above resolves against the pinned engine version at the time of reading, and note any URL migrations. -->
+- Documentation home — <https://docs.vllm.ai/>.
+- Engine arguments reference — <https://docs.vllm.ai/en/latest/configuration/engine_args/> (moved from `/serving/engine_args.html`).
+- OpenAI-compatible server guide — <https://docs.vllm.ai/en/latest/serving/online_serving/> (moved from `openai_compatible_server.html`).
+- Metrics reference — <https://docs.vllm.ai/en/latest/usage/metrics.html> (moved from `/serving/metrics.html`).
+- Automatic prefix caching — <https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html>.
+- Chunked prefill behaviour and tuning — <https://docs.vllm.ai/en/stable/configuration/optimization/> (dedicated `chunked_prefill.html` page retired; chunked prefill is now default-on in V1 and documented under the optimization guide).
+- Speculative decoding — <https://docs.vllm.ai/en/latest/features/speculative_decoding/> (moved from `spec_decode.html`; the canonical flag is now `--speculative-config`).
+- Original PagedAttention paper (Kwon et al., 2023 — "Efficient Memory Management for Large Language Model Serving with PagedAttention") — <https://arxiv.org/abs/2309.06180>.
 
 ## SGLang (chapter 05)
 
 - Documentation home — <https://docs.sglang.ai/>.
-- Server launch and arguments — <https://docs.sglang.ai/backend/server_arguments.html>.
+- Server launch and arguments — <https://docs.sglang.ai/advanced_features/server_arguments.html> (moved from `backend/server_arguments.html`). The current canonical DP-attention flag is `--attention-data-parallel-size` (alias `--attn-dp-size`), replacing the older `--enable-dp-attention` toggle; speculative-decoding flags `--speculative-algorithm`, `--speculative-draft-model-path`, `--speculative-num-steps` remain current.
+- Speculative decoding — <https://docs.sglang.ai/advanced_features/speculative_decoding.html>.
 - RadixAttention paper (Zheng et al., 2023 — "Efficiently Programming Large Language Models using SGLang") — <https://arxiv.org/abs/2312.07104>.
 - Data-parallel-attention explainer — SGLang blog and docs.
-
-<!-- needs-research: confirm SGLang docs URL paths and the current canonical flag names for `--enable-dp-attention` and speculative-decoding flags against the pinned deployment version. -->
 
 ## TensorRT-LLM and Triton (chapter 06)
 
@@ -58,17 +57,16 @@ References grounded in authoritative public sources. Items that require version-
 - Triton model configuration (`config.pbtxt`) — <https://github.com/triton-inference-server/server/blob/main/docs/user_guide/model_configuration.md>.
 - Triton TensorRT-LLM backend — <https://github.com/triton-inference-server/tensorrtllm_backend>.
 
-<!-- needs-research: trtllm-build flag naming has evolved across TensorRT-LLM minor versions. Confirm the flag set in chapter 06 against the docs for the TRT-LLM version currently in production at the reader's platform. -->
+Flag-naming note: against the current `trtllm-build` reference, `--max_batch_size`, `--max_input_len`, `--max_seq_len`, `--gemm_plugin`, `--gpt_attention_plugin`, `--use_paged_context_fmha`, `--kv_cache_type`, and `--remove_input_padding` remain canonical, while `--paged_kv_cache` is deprecated in favour of `--kv_cache_type paged`. Pin runbooks to a specific TensorRT-LLM minor version.
 
 ## NVIDIA Dynamo (chapter 06)
 
-- Documentation — <https://docs.nvidia.com/dynamo/>.
+- Documentation — <https://docs.nvidia.com/dynamo/> (versioned releases under `/dynamo/reference/releases/`; pin to the version your cluster runs).
 - NVIDIA Dynamo repository — <https://github.com/ai-dynamo/dynamo>.
+- Disaggregated-serving launch post (throughput figures used in chapter 06) — [Introducing NVIDIA Dynamo](https://developer.nvidia.com/blog/introducing-nvidia-dynamo-a-low-latency-distributed-inference-framework-for-scaling-reasoning-ai-models).
 - Disaggregated-serving background (papers and blogs frequently cited):
   - "Splitwise: Efficient Generative LLM Inference Using Phase Splitting" (Patel et al., 2024) — <https://arxiv.org/abs/2311.18677>.
   - "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving" (Zhong et al., 2024) — <https://arxiv.org/abs/2401.09670>.
-
-<!-- needs-research: NVIDIA Dynamo is a relatively new project and docs URLs and feature surface have evolved rapidly; confirm the docs path and the current knob surface at reading time. -->
 
 ## GPU telemetry and fleet operations (chapter 03 escalation, exercise 05)
 
@@ -107,12 +105,6 @@ References grounded in authoritative public sources. Items that require version-
 
 ## Needs-research (flagged for autonomous loop)
 
-<!-- needs-research: confirm vLLM flag naming (especially speculative-decoding config and prefix-caching knobs) against the current stable docs for the version pinned in representative production platforms. Flag deprecation / renaming has happened across minor releases and the chapter 04 tables should be versioned. -->
-
-<!-- needs-research: confirm SGLang flag naming (especially `--enable-dp-attention` and speculative-decoding flags) against the current stable docs. SGLang moves fast; chapter 05 tables should be versioned. -->
-
-<!-- needs-research: trtllm-build flag naming against the current TensorRT-LLM stable release. Several arguments have been renamed or reorganized across versions and chapter 06 should cite the version-specific docs URL. -->
-
-<!-- needs-research: NVIDIA Dynamo throughput-delta numbers on prefill/decode separation vs. co-located serving, pulled from the official NVIDIA Dynamo blog and whitepaper. Chapter 06 references these as motivational but does not cite a specific number. -->
+Flag-naming, URL-migration, and Dynamo throughput items have been resolved inline in the per-engine sections above. The remaining open research task:
 
 <!-- needs-research: public post-mortem corpus from frontier labs (OpenAI / Anthropic / Google DeepMind / Microsoft / major model-hosting providers) 2024–2026 classified by engine-root-cause (vLLM / SGLang / TRT-LLM / Dynamo), for use as chapter 04–06 case material and exercise 04 dry-run inputs. Reuse the mod-101 version of this entry if it has already been resolved. -->

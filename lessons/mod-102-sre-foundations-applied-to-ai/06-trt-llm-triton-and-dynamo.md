@@ -40,9 +40,7 @@ Unlike vLLM or SGLang, a TensorRT-LLM deployment is not "launch the engine again
 | `--kv_cache_type {paged,continuous}` | KV cache layout. |
 | `--remove_input_padding enable` | Pack variable-length inputs without padding. |
 
-**Flag naming has evolved across TensorRT-LLM versions.** Pin your version and point the runbook at the correct docs page.
-
-<!-- needs-research: confirm current canonical trtllm-build flag names against the 2025/2026 TensorRT-LLM docs; the flag set has been reorganized in recent releases. -->
+**Flag naming has evolved across TensorRT-LLM versions.** Pin your version and point the runbook at the correct docs page — the current reference is the [`trtllm-build` docs](https://nvidia.github.io/TensorRT-LLM/commands/trtllm-build.html). Note that `--paged_kv_cache` has been superseded by `--kv_cache_type {paged,continuous,disabled}`; treat the old flag as a compatibility alias on the way out.
 
 ### Build-stage failure classes
 
@@ -135,7 +133,7 @@ This is a design-time decision, not an operator knob:
 - **Decide to disaggregate when** the workload is large, the mix of prefill-heavy and decode-heavy requests is bimodal, and the throughput gain justifies the operational complexity.
 - **Decide to co-locate (vLLM / SGLang / TRT-LLM on Triton)** when the workload is modest, the mix is uniform, or operational simplicity is more valuable than peak throughput.
 
-<!-- needs-research: cite specific published benchmarks on Dynamo prefill/decode separation throughput deltas vs. co-located vLLM/SGLang/TRT-LLM across a representative workload set; the NVIDIA Dynamo blog + whitepaper publishes these numbers. -->
+NVIDIA's published numbers give a feel for the magnitude: Dynamo with disaggregated serving reports up to a ~2× throughput gain on Llama-70B on Hopper GPUs (vLLM backend, FP8, ISL/OSL 3K/50) and up to ~30× more requests served on DeepSeek-R1 on GB200 NVL72 (TensorRT-LLM backend, FP4, ISL/OSL 32K/8K) vs. co-located inflight batching — see the [NVIDIA Dynamo launch blog](https://developer.nvidia.com/blog/introducing-nvidia-dynamo-a-low-latency-distributed-inference-framework-for-scaling-reasoning-ai-models). The gain is highly workload- and hardware-dependent; treat these as upper-end motivational figures, not deployment forecasts.
 
 ## 4. The operator cheatsheet across all three engine families
 

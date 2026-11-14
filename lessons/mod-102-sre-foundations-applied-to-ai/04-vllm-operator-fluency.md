@@ -76,11 +76,9 @@ The authoritative list is in [`vllm serve` --help](https://docs.vllm.ai/en/lates
 | `--speculative-config` (JSON) | Full speculative-decoding config: draft model, number of speculative tokens, verification policy. |
 | `--num-speculative-tokens N` | Number of draft tokens proposed per decode step. |
 
-Older vLLM releases exposed `--speculative-model` and related flags as top-level args; modern releases consolidate into `--speculative-config`. Check the release-notes page for the version in your fleet.
+Older vLLM releases exposed `--speculative-model` and related flags as top-level args; modern releases consolidate into `--speculative-config` (JSON) — see the current [vLLM speculative decoding docs](https://docs.vllm.ai/en/latest/features/speculative_decoding/). Check the release-notes page for the version in your fleet.
 
 **Triage hook.** Speculative decoding wins throughput when the draft model's acceptance rate is high (typically > 60%). Under drift — model updates, workload drift — acceptance can drop, and speculative decoding becomes a net loss. Monitor acceptance rate; disable the feature as a first step if TPOT regresses after a model update.
-
-<!-- needs-research: confirm the exact flag names and deprecation status for speculative decoding across vLLM 0.5.x, 0.6.x, and 0.7.x; cite the specific docs page URL for the currently-canonical flag. -->
 
 ### Quantization
 

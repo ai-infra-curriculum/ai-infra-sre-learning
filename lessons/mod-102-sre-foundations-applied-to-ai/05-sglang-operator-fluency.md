@@ -18,9 +18,7 @@ SGLang organizes the KV cache as a **radix tree** keyed by the token sequence. M
 
 On a multi-GPU deployment, the classical choice is TP (tensor-parallel: shard a single replica across GPUs) vs. DP (data-parallel: run multiple replicas, each handling a subset of requests). SGLang supports a hybrid where the **attention layer is data-parallel** while the rest of the model is tensor-parallel. The practical effect: the attention computation (which is memory-bandwidth bound on decode) is not serialized across the TP group, improving throughput on decode-heavy workloads.
 
-**Why an operator cares.** DP-attention is a launch-time choice that materially changes the throughput / latency profile of the deployment. If your deployment is decode-heavy (long generations, agent loops) and is running without DP-attention, enabling it is a knob change — not a code change — with measurable impact. Conversely, enabling it on a prefill-heavy workload may not help and may complicate scheduling.
-
-<!-- needs-research: confirm the current SGLang flag name for DP-attention (`--enable-dp-attention` vs. prior variants) against the docs URL for the version you deploy; the flag naming has evolved across releases. -->
+**Why an operator cares.** DP-attention is a launch-time choice that materially changes the throughput / latency profile of the deployment. If your deployment is decode-heavy (long generations, agent loops) and is running without DP-attention, enabling it is a knob change — not a code change — with measurable impact. Conversely, enabling it on a prefill-heavy workload may not help and may complicate scheduling. The flag spelling has evolved: current SGLang uses `--attention-data-parallel-size` (alias `--attn-dp-size`), replacing the older `--enable-dp-attention` toggle — see the [SGLang server-arguments docs](https://docs.sglang.ai/advanced_features/server_arguments.html).
 
 ## 2. Launch flags that come up in triage
 
@@ -62,9 +60,7 @@ The authoritative reference is the SGLang launch-server documentation. The short
 
 ### Speculative decoding
 
-SGLang supports speculative decoding via EAGLE and similar draft-model paths. Flags expose the draft model, number of speculative tokens, and verification policy. Treat it operationally like vLLM: it is a throughput optimization that *can* regress TPOT when acceptance rate drops; monitor the rate.
-
-<!-- needs-research: confirm current SGLang speculative-decoding flag names (`--speculative-algorithm`, `--speculative-draft-model-path`, `--speculative-num-steps`) against the docs. -->
+SGLang supports speculative decoding via EAGLE and similar draft-model paths. The current canonical flags are `--speculative-algorithm`, `--speculative-draft-model-path`, and `--speculative-num-steps` (with additional knobs such as `--speculative-eagle-topk` and `--speculative-num-draft-tokens`) — see the [SGLang server-arguments docs](https://docs.sglang.ai/advanced_features/server_arguments.html). Treat it operationally like vLLM: it is a throughput optimization that *can* regress TPOT when acceptance rate drops; monitor the rate.
 
 ### Observability
 
