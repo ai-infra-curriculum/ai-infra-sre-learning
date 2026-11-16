@@ -69,7 +69,7 @@ The chain lives in the artifact's metadata in the named store, not in an enginee
 
 The function does not decide retention windows. Legal does. The AI SRE function's commitments:
 
-- **Default retention** on incident artifacts is set to the longest plausible legal window (e.g., seven years in the US financial-services case, five years in the EU AI Act case if the Act applies — <!-- needs-research: confirm the exact retention expectations under Art. 72 for high-risk AI systems and whether the implementing act specifies a baseline retention period -->), erring long when uncertain.
+- **Default retention** on incident artifacts is set to the longest plausible legal window (e.g., seven years in the US financial-services case; at least six months under Art. 19 of the EU AI Act for high-risk-system automatically generated logs, frequently extended by other Union or national law), erring long when uncertain.
 - **Legal-hold override.** When legal issues a hold on specific artifacts, those are exempt from any automated deletion the storage system would otherwise perform. The function maintains a legal-hold register.
 - **Deletion requires clearance.** No artifact is pruned without a legal sign-off on the pruning. The function's quarterly data-handling review (§7) is the regular channel for clearance requests.
 

@@ -20,7 +20,7 @@ Those three are the vocabulary. Sections 2–4 write the compliance frameworks t
 
 ## 2. EU AI Act — the post-market monitoring half of the contract
 
-Regulation (EU) 2024/1689 establishes a post-market monitoring regime for providers of high-risk AI systems on the EU market. Article 72 — post-market monitoring — requires providers to establish and document a post-market monitoring system that **actively and systematically collects, documents, and analyses** relevant data on the system's performance throughout its lifetime, to evaluate continuous compliance with the Regulation. <!-- needs-research: confirm the content and form of the Commission's implementing act under Art. 72(3) that establishes the detailed provisions for the post-market monitoring plan template and the status of its publication at the time of reading -->
+Regulation (EU) 2024/1689 establishes a post-market monitoring regime for providers of high-risk AI systems on the EU market. Article 72 — post-market monitoring — requires providers to establish and document a post-market monitoring system that **actively and systematically collects, documents, and analyses** relevant data on the system's performance throughout its lifetime, to evaluate continuous compliance with the Regulation. The Commission's binding implementing act for a post-market monitoring plan template (originally due 2 February 2026 under Art. 72(3)) was repealed by the Digital Omnibus on AI, Regulation (EU) 2026/1744, in force 27 July 2026; it is to be replaced by non-binding Commission guidance including a template, due by 2 September 2027.
 
 Article 73 — the complementary serious-incident reporting duty — was covered in `mod-108` chapter 06 §2.1. Article 72 is the steady-state counterpart: *where the incident surfaces, 72 is the monitoring that was supposed to detect it; where the incident is reportable, 72 is the record of the monitoring system that was in place*.
 
@@ -66,7 +66,7 @@ The deliverable the AI SRE signs for Article 72 purposes is a one-page **telemet
 
 > The following signals are emitted continuously by the production monitoring system of the {product / high-risk system name}. They are retained in {short-horizon store} for {N} days and in {long-horizon store} for {M} years under {policy reference}. The monitoring system's availability is targeted at {SLO}, measured and reported quarterly. Access is available to the roles enumerated below for the purposes of compliance evaluation.
 
-Attached to the attestation: the §2.2 inventory table with current coverage status, the retention schedule, the query SLO, the role / access matrix. `ai-risk-engineer` or legal consumes the attestation as the evidentiary input to the Article 72 narrative; they do not re-derive the inventory. <!-- needs-research: confirm whether the Commission implementing act under Art. 72(3), when published, imposes a specific format for the post-market monitoring plan that supersedes the free-form attestation shape -->
+Attached to the attestation: the §2.2 inventory table with current coverage status, the retention schedule, the query SLO, the role / access matrix. `ai-risk-engineer` or legal consumes the attestation as the evidentiary input to the Article 72 narrative; they do not re-derive the inventory. The Digital Omnibus on AI (Regulation (EU) 2026/1744) repealed the Commission's power to adopt a binding template under Art. 72(3), so no mandatory format supersedes the free-form attestation shape; the forthcoming (expected by September 2027) Commission guidance will be non-binding.
 
 ### 2.5 The fall-backs the Act is read with
 
@@ -74,11 +74,11 @@ The Act interacts with existing regimes the role should be aware of as *context*
 
 - **GDPR.** Processing of personal data by a monitoring system is itself a data-protection surface. The telemetry contract's data-handling columns (residency, retention) carry GDPR-colour implications. Legal / DPO owns the interpretation.
 - **Non-high-risk AI systems** have lighter obligations under the Act. The attestation discipline is still a good hygiene choice; the Act's weight is not.
-- **General-purpose AI model providers** (Chapter V of the Act) have a separate duty regime. If the organisation is a provider of a general-purpose AI model in addition to a product built on one, the telemetry contract has two surfaces — the model-provider surface and the system-provider surface. The `ai-risk-engineer` peer navigates which obligations apply. <!-- needs-research: confirm the current status of the Code of Practice for general-purpose AI models under Art. 56 and any specific telemetry expectations it contains -->
+- **General-purpose AI model providers** (Chapter V of the Act) have a separate duty regime. If the organisation is a provider of a general-purpose AI model in addition to a product built on one, the telemetry contract has two surfaces — the model-provider surface and the system-provider surface. The `ai-risk-engineer` peer navigates which obligations apply. The Art. 56 General-Purpose AI Code of Practice was finalised on 10 July 2025 and confirmed by the Commission on 1 August 2025 as an adequate means of demonstrating compliance with Articles 53 and 55; its three chapters (Transparency, Copyright, and Safety and Security) are the interim reference pending harmonised standards.
 
 ## 3. FDA PCCP — the triggered-change half of the contract
 
-For AI-enabled medical devices in the US, the FDA's Predetermined Change Control Plan framework allows manufacturers to pre-specify the modifications they intend to make after clearance without requiring a new submission each time. The PCCP includes a Modification Specification, a Modification Protocol, and an Impact Assessment, per the final guidance the FDA published in December 2024. <!-- needs-research: confirm the final guidance document title, publication date, and whether any updates have superseded it at the time of reading; the current document is "Marketing Submission Recommendations for a Predetermined Change Control Plan for Artificial Intelligence-Enabled Device Software Functions" -->
+For AI-enabled medical devices in the US, the FDA's Predetermined Change Control Plan framework allows manufacturers to pre-specify the modifications they intend to make after clearance without requiring a new submission each time. The PCCP includes a Modification Specification, a Modification Protocol, and an Impact Assessment, per the FDA's final guidance *Marketing Submission Recommendations for a Predetermined Change Control Plan for Artificial Intelligence-Enabled Device Software Functions*, announced in the Federal Register on 4 December 2024.
 
 ### 3.1 What PCCP implies for the AI SRE
 
@@ -113,7 +113,7 @@ These exclusions are explicit in the attestation the AI SRE signs so the functio
 
 ## 4. SR 11-7 — the model-risk half of the contract
 
-The Federal Reserve's SR 11-7 (2011), adopted in parallel by the OCC's 2011-12 bulletin, is the model-risk-management guidance US banks apply to models in production. Its treatment of AI models is interpretive; MRM functions use its framework by analogy for AI. <!-- needs-research: confirm whether an interagency AI-specific supplement to SR 11-7 has been issued at the time of reading; as of early 2026 the long-standing SR 11-7 remains the primary guidance for US banks, interpreted for AI by MRM functions -->
+The Federal Reserve's SR 11-7 (2011), adopted in parallel by the OCC's 2011-12 bulletin, was the model-risk-management guidance US banks applied to models in production. On 17 April 2026 it was superseded for traditional statistical and quantitative models (plus non-generative, non-agentic AI) by the interagency SR 26-2 / OCC Bulletin 2026-13, which explicitly carved out generative and agentic AI pending a separate interagency AI rulemaking; MRM functions continue to apply the SR 11-7 framework by analogy to the carved-out AI models in the interim.
 
 SR 11-7 expects a model inventory, documentation, independent validation, ongoing monitoring, and governance. The AI SRE's role maps to **ongoing monitoring**.
 

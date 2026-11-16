@@ -115,7 +115,7 @@ And one explicit runbook (`rb-pii-filter-slowpath-storm`) with mitigations: cach
 
 ## 4. Model-extraction query-rate control and P99
 
-Model-extraction attacks are described in NIST AI 100-2 and OWASP's LLM Top 10 (LLM10 in the current edition at the time of writing — <!-- needs-research: confirm the latest OWASP Top 10 for LLM Applications version and the stable code for model-extraction / unbounded consumption; the list has rotated between versions -->). The `ai-infra-security` peer owns the detection and the methodology. The common defensive control is a **query-rate shaper** — per-API-key, per-tenant, per-session rate caps combined with pattern-based anomaly detection that slows the response when a client's query sequence resembles an extraction pattern.
+Model-extraction attacks are described in NIST AI 100-2 and OWASP's LLM Top 10 (LLM06:2026 Unbounded Consumption in the [2026 edition](https://owasp.github.io/www-project-top-10-for-large-language-model-applications/); the same risk was LLM10 in the 2025 edition). The `ai-infra-security` peer owns the detection and the methodology. The common defensive control is a **query-rate shaper** — per-API-key, per-tenant, per-session rate caps combined with pattern-based anomaly detection that slows the response when a client's query sequence resembles an extraction pattern.
 
 The reliability consequence is non-obvious and matters: a rate shaper that delays rather than blocks adds a *tail* to the latency distribution for the exact clients the service is trying to retain. The AI SRE's role is to make sure the shaper's behaviour is specified and measured, not to re-derive the shaper.
 
@@ -140,7 +140,7 @@ The "added latency" histogram is explicitly the *delta* the shaper added, measur
 
 ## 5. Adversarial-input-induced timeouts
 
-Not every adversarial input is handled by a classifier. Some fail in the serving path: a prompt with a context-length-exceeded payload, a prompt with a pathological Unicode normalisation that explodes tokenisation time, a prompt template that triggers an output-length blow-up that saturates a worker's KV cache, a prompt whose decoding settings trigger a retry loop in the structured-output validator. These are the reliability shape of what the security peer catalogues under "unbounded consumption" / "denial-of-wallet" / "resource exhaustion attacks" (OWASP LLM04 at time of writing — <!-- needs-research: confirm OWASP LLM Top 10 numbering for Model Denial of Service / Unbounded Consumption in the currently published version -->).
+Not every adversarial input is handled by a classifier. Some fail in the serving path: a prompt with a context-length-exceeded payload, a prompt with a pathological Unicode normalisation that explodes tokenisation time, a prompt template that triggers an output-length blow-up that saturates a worker's KV cache, a prompt whose decoding settings trigger a retry loop in the structured-output validator. These are the reliability shape of what the security peer catalogues under "unbounded consumption" / "denial-of-wallet" / "resource exhaustion attacks" (OWASP LLM06:2026 Unbounded Consumption, previously LLM10 in the 2025 edition and originally LLM04 Model Denial of Service in the 2023 draft).
 
 The AI SRE owns three mitigations even though the detection is often the security peer's:
 
