@@ -90,7 +90,7 @@ Curated references for the four pipeline surfaces this module writes a reliabili
 ### Contamination detection
 
 - Carlini et al. — [*Extracting Training Data from Large Language Models*](https://arxiv.org/abs/2012.07805) — Foundational reference for membership inference against LLMs.
-- Oren et al. — [*Proving Test Set Contamination in Black Box Language Models*](https://arxiv.org/abs/2310.17623) — Specific methodology for detecting eval contamination in black-box models. <!-- needs-research: verify this is the canonical reference the field uses; alternative references exist and the function should cite the one most consistent with current best-practice -->
+- Oren et al. — [*Proving Test Set Contamination in Black Box Language Models*](https://arxiv.org/abs/2310.17623) (ICLR 2024) — Benchmark-exchangeability statistical test for detecting eval contamination in black-box models with only query access.
 
 ## Observability (chapter 05)
 

@@ -196,7 +196,7 @@ Any non-zero value is a page.
 
 ## 7. The feature / metadata handoff with the ML-platform peer
 
-The ML-platform peer is a level-30 peer on the engineering ladder (`mod-101`). <!-- needs-research: confirm the exact slug and level of the ML-platform peer in the current org ladder — the number is stated in the module spec and should match --> The handoff is written in chapter 06; this section anchors what the function owns versus what the peer owns at the feature surface.
+The ML-platform peer is a level-30 peer on the engineering ladder (`mod-101` chapter 02 §`ai-infra-ml-platform`). The handoff is written in chapter 06; this section anchors what the function owns versus what the peer owns at the feature surface.
 
 ### 7.1 The function owns
 

@@ -75,7 +75,7 @@ Burn-rate alarms (`mod-103` chapter 05) apply unchanged. A 14.4× burn over 1 ho
 
 Staleness measures *whether* the index contains the right document. Recall measures *whether the retrieval step finds the right document*. Both are reliability signals; both have SLOs.
 
-Define a **retrieval-recall probe set** — a curated set of (query, expected-doc-id) pairs maintained by the `rag-engineer` peer, run against the live retrieval stack on a cadence (every 5 minutes is a typical sampling rate — <!-- needs-research: cite a retrieval-probe cadence recommendation from a published RAG-reliability reference; current statement is reasoned, not cited -->). The SLI is the fraction of probes where the expected document appears in the `top_k` retrieved set:
+Define a **retrieval-recall probe set** — a curated set of (query, expected-doc-id) pairs maintained by the `rag-engineer` peer, run against the live retrieval stack on a cadence chosen to match the corpus's freshness bound and the burn-rate alarm horizons from `mod-103`. The SLI is the fraction of probes where the expected document appears in the `top_k` retrieved set:
 
 ```promql
 retrieval_recall_probe_hit_ratio{corpus, k}
@@ -141,7 +141,7 @@ Without any code or config change, probe-hit ratio can drift because:
 - **Corpus content changed.** New documents pushed the probe's expected document out of the `top_k` (a new document is closer to the query's embedding than the expected one).
 - **Query distribution changed.** The production query distribution has drifted; the probe set no longer represents what users are actually asking.
 - **Embedding-provider drift.** A hosted embedding model has been silently updated (`mod-107` chapter 04); the embeddings of new ingested documents are no longer directly comparable to the embeddings of old ones.
-- **Index degradation.** HNSW graphs can degrade under sustained incremental upserts; recall-at-k on an HNSW index that has not been periodically recompacted is known to drift. <!-- needs-research: cite a specific source on HNSW quality degradation under heavy upsert load; the pattern is widely reported but the function should cite a canonical reference (e.g. Malkov & Yashunin 2018, or a specific blog post from Weaviate / Qdrant engineers) -->
+- **Index degradation.** HNSW graphs can degrade under sustained incremental upserts; recall-at-k on an HNSW index that has not been periodically recompacted is known to drift (the underlying graph construction is described in Malkov & Yashunin, [*Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs*](https://arxiv.org/abs/1603.09320), IEEE TPAMI 2018).
 
 Each cause has a different remediation. The on-call's job is not to pick a cause from memory; the job is to walk the diagnostic in the `rb-recall-drift` runbook.
 
@@ -219,7 +219,7 @@ The function enforces an **embedding-model pin** as config (chapter 01 §4) — 
 
 ## 6. Re-rank latency and the TTFT budget
 
-The re-ranker is the retrieval stage most commonly overlooked in the latency budget. A cross-encoder re-rank over 100 candidates can add 200–500ms to the request path (<!-- needs-research: cite representative re-rank latency numbers from Cohere Rerank, BGE-reranker, or Jina-reranker benchmark pages; the specific range depends on model size and hardware -->), which is a large fraction of a tight TTFT SLO.
+The re-ranker is the retrieval stage most commonly overlooked in the latency budget. A cross-encoder re-rank over ~100 candidates can add a non-trivial chunk of latency to the request path — typically tens to a few hundred milliseconds depending on model size, hardware, and whether the reranker runs in-process or behind a hosted API — which is a large fraction of a tight TTFT SLO.
 
 ### 6.1 The latency decomposition
 

@@ -10,28 +10,28 @@ This chapter writes the boundary explicitly, in the same shape as `mod-111` chap
 
 Four peer disciplines sit next to the function on the data and config surfaces. Each is a distinct role on the engineering ladder (`mod-101`); each has a specific handoff.
 
-### 1.1 `rag-engineer` peer (level 25, consumer role per `mod-101`) <!-- needs-research: confirm the exact level and slug of the rag-engineer peer in the current ladder -->
+### 1.1 `rag-engineer` peer (level 25, consumer role per `mod-101` chapter 02)
 
 - **What they own.** The retrieval pipeline's internals — the chunker, the embedding-model selection, the index-type decision (HNSW / IVF / flat / hybrid BM25+vector), the re-ranker choice and tuning, the retrieval probe-set authoring, the context-assembly strategy, the retrieval-prompt stitching.
 - **Representative tooling.** FAISS, Milvus, Weaviate, Qdrant, Pinecone, pgvector, Elasticsearch; LangChain / LlamaIndex retrieval graphs; Cohere / BGE / Jina rerankers; the hybrid-search layers.
 - **Handoff from this module.** Chapter 02's retrieval-freshness and retrieval-recall SLOs; chapter 02's embedding-index-version pin as config; chapter 02's rerank-latency-in-TTFT accounting.
 - **Handoff to this module.** The function reads the retrieval pipeline's health via the signal set from chapter 02 §2; the function does not rewrite the pipeline.
 
-### 1.2 `ai-infra-ml-platform` peer (level 30 per `mod-101`) <!-- needs-research: confirm level and slug -->
+### 1.2 `ai-infra-ml-platform` peer (level 30 per `mod-101` chapter 02)
 
 - **What they own.** The feature store itself — feature authoring, feature-pipeline code (Flink / Beam / Spark / Airflow / dbt jobs), the feature-registry content, the online-store and offline-store operation, the materialisation scheduling, backfills, feature-set versioning. The metadata stores (model registry, feature registry, lineage store) and the training / serving parity conventions.
 - **Representative tooling.** Feast, Tecton, Vertex AI Feature Store, SageMaker Feature Store, Databricks Feature Store; Redis / DynamoDB / Bigtable / Cassandra as online-store substrates; parquet / BigQuery / Snowflake as offline-store substrates; MLflow / Vertex AI / SageMaker as registry substrates.
 - **Handoff from this module.** Chapter 03's feature-serving SLO set (availability, freshness, completeness, parity); chapter 03's parity audit; chapter 03's pipeline-stall detector; chapter 03's metadata-store SLOs.
 - **Handoff to this module.** The function reads the feature surface's health via the signal set from chapter 03; the function does not author features or operate the pipelines.
 
-### 1.3 `ai-eval-engineer` peer (level 30 per `mod-101`) <!-- needs-research: confirm level and slug; same peer referenced in mod-111 chapter 08 -->
+### 1.3 `ai-eval-engineer` peer (level 30 per `mod-101` chapter 02)
 
 - **What they own.** Eval methodology — eval-set authoring, judge-pipeline design, judge-vs-human calibration, benchmark selection, the regression-set ledger, threshold-setting discipline for pass / fail, representativeness / discriminator / contamination metric choices.
 - **Representative tooling.** Internal eval harnesses; OpenAI Evals, Inspect AI, Promptfoo, LangSmith evaluations, Weights & Biases Weave; judge-model stacks with human-calibration pipelines.
 - **Handoff from this module.** Chapter 04's eval-set reliability signals (representativeness, discriminator, contamination); chapter 04's release-gate contract clauses; chapter 04's quarantine action on contamination detection; `mod-111` chapter 05's release-gate eval predicate.
 - **Handoff to this module.** The eval peer does not operate the release pipeline or the on-call queue; they publish the eval-set content and the methodology signals.
 
-### 1.4 `model-evaluation-engineer` peer (level 30 per `mod-101`) <!-- needs-research: confirm level and slug; mod-101 names both ai-eval-engineer and model-evaluation-engineer distinctly -->
+### 1.4 `model-evaluation-engineer` peer (level 30 per `mod-101` chapter 02)
 
 - **What they own.** The methodology layer *below* eval-set construction — the public-benchmark review, the leaderboard methodology, the training / fine-tune evaluation harness, the model-selection evidence base. This is a sibling to `ai-eval-engineer`; where `ai-eval-engineer` sits closer to the application-level eval set, `model-evaluation-engineer` sits closer to the model-selection evidence base.
 - **Representative tooling.** HELM, lm-evaluation-harness, HumanEval, SWE-bench, MT-Bench, Chatbot Arena, and the commercial equivalents; the model-evaluation framework internal to the fleet.

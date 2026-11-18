@@ -250,7 +250,7 @@ spec:
         thresholdRange: { min: -0.2, max: 0.2 }
 ```
 
-Flagger does not ship a `RouteConfig`-aware primary / canary primitive out of the box; the pattern above requires either a custom target-ref integration (an operator the SRE function writes that watches a `RouteConfig` with `stable` / `canary` sub-sections and manipulates the service mesh accordingly) or an Argo Rollouts `Rollout` whose `template` references the channel at the `env` layer. <!-- needs-research: verify the exact extensibility shape for Flagger custom target references against the current Flagger CRD documentation and cite the specific API field --> The chapter asserts the pattern; the implementation detail resolves at the SRE / mlops handoff.
+Flagger does not ship a `RouteConfig`-aware primary / canary primitive out of the box; its `spec.targetRef` field is documented as targeting a Kubernetes `Deployment` or `DaemonSet` ([Flagger docs — How it works](https://docs.flagger.app/usage/how-it-works)), so the pattern above requires either a custom target-ref integration (an operator the SRE function writes that watches a `RouteConfig` with `stable` / `canary` sub-sections and manipulates the service mesh accordingly) or an Argo Rollouts `Rollout` whose `template` references the channel at the `env` layer. The chapter asserts the pattern; the implementation detail resolves at the SRE / mlops handoff.
 
 ### 5.6 Response-length as a first-class canary signal
 
