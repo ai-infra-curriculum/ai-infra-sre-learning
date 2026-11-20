@@ -14,10 +14,8 @@ Each provider publishes status via a public page powered by one of a small set o
 
 - **Hosting.** Atlassian Statuspage.
 - **Public endpoints.** Statuspage exposes JSON at known paths: `https://status.openai.com/api/v2/summary.json`, `.../status.json`, `.../incidents.json`, `.../components.json`, `.../scheduled-maintenances.json`. These return structured data with components (`chat`, `API`, `ChatGPT`, etc.), their current `status` (`operational`, `degraded_performance`, `partial_outage`, `major_outage`), and active incidents with updates.
-- **Webhooks.** Statuspage supports subscriber-webhook integrations (`/subscribers.json` / Atlassian's webhooks product). You can register a webhook URL that receives POSTs on incident create / update / resolve events, so you do not have to poll.
+- **Webhooks.** Atlassian Statuspage supports subscriber-webhook notifications (see `support.atlassian.com/statuspage/docs/enable-webhook-notifications/`): when enabled on a tenant, a webhook tab appears in the subscription dropdown and the endpoint receives HTTP POSTs on incident create / update / resolve events. Whether OpenAI's specific tenant exposes the webhook subscription option publicly depends on their Statuspage plan and configuration; the JSON endpoints above are reliably public regardless, and are the safer basis for a vendor-agnostic ingestion pipeline.
 - **Granularity.** Per-component (e.g., "API", "ChatGPT", "API Realtime") and per-incident-update.
-
-<!-- needs-research: confirm Statuspage subscriber-webhook availability on OpenAI's specific tenant; this depends on the vendor's plan. The JSON endpoints are reliably public. -->
 
 ### 1.2 Anthropic — status.anthropic.com
 

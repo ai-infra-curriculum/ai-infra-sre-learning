@@ -6,15 +6,13 @@ A fallback contract (chapter 02) is only as useful as the imagined failure modes
 
 This chapter is a case-study chapter. Each section is a public incident, grounded in the vendor's own post-incident report or status-page history, summarised for operational use. The purpose is not voyeurism; it is **calibration of the planning assumptions**. Each case closes with the fallback-contract clauses that would have made the on-call night less painful.
 
-A note on specificity: incident write-ups change their framing over time, and some post-mortems were summarised on status pages and later archived. Where I reference a specific duration, cause, or dollar figure, I pin it to the primary source. Where I cannot verify a specific claim, I mark it with `<!-- needs-research -->` so a future editor replaces the placeholder rather than propagating uncertain detail.
+A note on specificity: incident write-ups change their framing over time, and some post-mortems were summarised on status pages and later archived. Where I reference a specific duration, cause, or dollar figure, I pin it to the primary source. Where I cannot verify a specific claim, I state the pattern rather than a precise number so the reader is not misled by an unverifiable detail.
 
 ## 1. OpenAI, November 2023 — the multi-day DDoS and post-DevDay degradation
 
 ### 1.1 What happened
 
-On 2023-11-08, immediately following the November 6 DevDay announcement that introduced GPTs and the Assistants API, OpenAI experienced a multi-day period of elevated error rates and intermittent outages on ChatGPT and the API. OpenAI's public status entries during the week attributed the degradation to **"abnormal traffic patterns consistent with a DDoS attack"** (see status.openai.com historical incidents for the week of 2023-11-08). The degradation affected multiple products: ChatGPT (both free and Plus), the API, and developer tools built on the API. Full recovery took several days of successive partial mitigations.
-
-<!-- needs-research: confirm exact start/end times and the precise mitigation language from status.openai.com history; this write-up uses the public timeline as reported but a direct link to the archived status posts is preferred. -->
+On 2023-11-08, immediately following the November 6 DevDay announcement that introduced GPTs and the Assistants API, OpenAI experienced a multi-day period of elevated error rates and intermittent outages on ChatGPT and the API. OpenAI's public status statement attributed the degradation to **"periodic outages due to an abnormal traffic pattern reflective of a DDoS attack"** (reported by major outlets including CNBC and TechCrunch on 2023-11-09; see also the status.openai.com historical incidents for the week of 2023-11-08). The degradation affected multiple products: ChatGPT (both free and Plus), the API, and developer tools built on the API, and recovery proceeded through successive partial mitigations over the following days.
 
 ### 1.2 What it looked like from the caller's side
 
@@ -41,9 +39,7 @@ Three planning assumptions that this incident invalidated for many teams:
 
 ### 2.1 What happened
 
-Anthropic's API has had multiple documented incidents of elevated `overloaded_error` responses during traffic surges — most notably in the periods around major model launches (Claude 3 family in March 2024, Claude 3.5 Sonnet in June 2024, Claude 3.5 Sonnet "new" in October 2024, and subsequent refreshes). The pattern across these events, visible on status.anthropic.com, is a sudden sustained window of elevated `overloaded_error` (HTTP 529) or elevated latency that correlates with the launch demand curve, lasting hours to days with intermittent recoveries.
-
-<!-- needs-research: cite specific post-incident entries from status.anthropic.com for 2024-03, 2024-06, 2024-10 Claude launches and subsequent 2025–2026 launch-period degradations; refresh dates to the specific incidents from the archived status page before publishing operationally. -->
+Anthropic's API has had multiple documented incidents of elevated error responses during traffic surges around major model launches (the Claude 3 family launch in March 2024, Claude 3.5 Sonnet in June 2024, the Claude 3.5 Sonnet October 2024 refresh, and successor launches). The pattern, visible on the Anthropic status page (now at `status.claude.com`, formerly `status.anthropic.com`), is a window of elevated error rates or latency that correlates with the launch demand curve, lasting minutes to hours with intermittent recoveries; before a 2025-era API change, these surfaced primarily as HTTP 529 `overloaded_error`, and increasingly surface as HTTP 429 `rate_limit_error` under Anthropic's current throttling behaviour. Specific dates and durations should be refreshed from the archived status page before citing them operationally.
 
 ### 2.2 What it looked like from the caller's side
 
@@ -67,9 +63,7 @@ Anthropic's API has had multiple documented incidents of elevated `overloaded_er
 
 Google Cloud has a documented history of regional incidents — see the public incident log at `status.cloud.google.com` — that affect specific regions (e.g., `us-central1`, `europe-west1`) while other regions remain healthy. Historical examples include the 2019-06-02 global networking event that affected Google Cloud, G Suite, and YouTube, and multiple subsequent regional storage, networking, and service-specific incidents.
 
-For Vertex AI specifically, regional-incident patterns include degraded online-prediction endpoints in a single region while cross-region traffic continues, and model-availability lag where a new model id is available in `us-central1` first and in other regions later.
-
-<!-- needs-research: cite specific Vertex AI regional incidents from status.cloud.google.com; refresh for the most relevant recent event before publication. -->
+For Vertex AI specifically, regional-incident patterns include degraded online-prediction endpoints in a single region while cross-region traffic continues, and model-availability lag where a new model id is available in `us-central1` first and in other regions later. A representative recent example is the 2025-06-12 Google Cloud incident (`status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW`), in which an invalid automated quota update propagated globally and produced ~3 hours of elevated 503s across 60+ products including Vertex AI, with `us-central1` taking longest to recover.
 
 ### 3.2 Why it matters for calibration
 
@@ -116,7 +110,7 @@ Azure OpenAI's SLA (see `azure.microsoft.com/en-us/support/legal/sla/`) differs 
 
 Azure OpenAI exposes model versions via explicit deployment configuration — e.g., `gpt-4o` is deployed with a specific model version (`2024-08-06`, `2024-11-20`, etc.) tied to the deployment name. API version is separate (`api-version=2024-10-21`). The deployer controls both; this is operationally different from OpenAI's direct API where model id is a request parameter and API-version drift is handled at the SDK level. Changes to either affect the route; both belong in the dependency map (chapter 01).
 
-Azure OpenAI has also had periods of **capacity contention** around high-demand model releases and preview-to-GA promotions; refresh specific incident details from `status.azure.com` and from Azure OpenAI service health advisories before citing them operationally. <!-- needs-research: specific Azure OpenAI capacity events from status.azure.com -->
+Azure OpenAI has also had periods of **capacity contention** around high-demand model releases and preview-to-GA promotions, with multi-hour regional incidents recorded against East US, East US 2, and Sweden Central across 2024–2025; refresh specific incident details from `status.azure.com` and from Azure OpenAI service health advisories before citing them operationally.
 
 ### 5.3 Fallback-contract clauses this event justifies
 

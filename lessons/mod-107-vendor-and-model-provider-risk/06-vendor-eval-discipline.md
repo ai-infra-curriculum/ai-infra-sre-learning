@@ -196,7 +196,7 @@ The artifact that captures the chapter's decisions is a per-vendor scorecard, re
 ## Reliability
 - SLA (as of 2026-11-04): <vendor's current language; see docs>.
 - Historical availability (last 12 months, observed from our traffic): 99.72%.
-- Multi-day outage events in last 24 months: 1 (2024 Sept, ~4h; 2026 Jan, ~12h).  <!-- needs-research: specifics from status.anthropic.com -->
+- Multi-hour outage events in last 24 months: refresh counts and durations from `status.claude.com` (formerly `status.anthropic.com`) before publication; the template records the count and the longest single incident.
 - Deprecation cadence: prior major family retired 10 months after successor GA.
 
 ## Quality
