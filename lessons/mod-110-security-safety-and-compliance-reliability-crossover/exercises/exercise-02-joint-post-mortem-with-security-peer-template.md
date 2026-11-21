@@ -27,9 +27,51 @@ Produce `joint-post-mortem-template.md` with the structure from chapter 02 §2:
 - Header (co-authors, shape, status, window, legal reviewer field).
 - Joint narrative section with the observation-vs-inference rule and signature lines.
 - Three function-specific detail blocks (AI SRE, security, joint) with authoring guidance.
-- Root-cause classification using the extended taxonomy (base categories from `mod-108` chapter 03 §3 plus the chapter 02 §2.4 joint categories).
-- Action-item table with mandatory `Owner`, `Owning-function`, `Due`, `Fixture-class` columns.
+- Root-cause classification using the extended taxonomy (base categories from `mod-108` chapter 03 §3 plus the chapter 02 §2.4 joint categories, reproduced below as the selectable list).
+- Action-item table with mandatory `Owner`, `Owning-function`, `Due`, `Fixture-class` columns. `Fixture-class` draws from the controlled vocabulary reproduced below.
 - Lessons block with "Shared" and "Function-specific" subsections.
+
+The extended root-cause taxonomy the template exposes as a single selectable list:
+
+```
+# Base categories (mod-108 chapter 03 §3)
+- model-weight
+- kernel
+- scheduler
+- prompt-or-config
+- retrieval
+- provider
+- agent-cascade
+- eval-drift
+
+# Joint categories (chapter 02 §2.4)
+- defensive-change-untested-budget
+- defensive-change-untested-latency-tail
+- fallback-without-defensive-parity
+- fallback-timeout-defeats-defensive-heuristic
+- ingest-poisoning-cross-surface
+- provider-change-cross-surface
+- shared-tool-call-path-cross-surface
+```
+
+The fixture-class controlled vocabulary the `Fixture-class` column selects from:
+
+```
+# Base classes (mod-108 chapter 05 §1)
+- alert
+- canary-eval-case
+- eval-set-entry
+- load-test-shape
+- chaos-experiment
+- runbook-update
+
+# Joint-specific classes (chapter 02 §2.5)
+- contract
+- gate
+- dashboard
+```
+
+A root cause or fixture class that does not fit the list is marked `other` with a short justification, and is nominated as a candidate taxonomy entry at the next quarterly joint retrospective (chapter 02 §5).
 
 The template is written as a fillable form — placeholders in `<angle brackets>`, inline guidance in short italics, no example data. Example data belongs in Part 2.
 
@@ -37,11 +79,11 @@ The template is written as a fillable form — placeholders in `<angle brackets>
 
 Produce three worked examples, one per shape, in a companion file `joint-post-mortem-examples.md`:
 
-- **Shape A example.** A defensive-control change caused a reliability regression. Use the archetype from chapter 02 §1.1 or an invented but plausible analogue (classifier deploy, PII-filter rules update, policy-engine rule-set reload). Fill the template end to end: narrative, three detail blocks, extended root cause, five or more action items tagged with owner / function / due / fixture-class.
+- **Shape A example.** A defensive-control change caused a reliability regression. Use the archetype from chapter 02 §1.1 or an invented but plausible analogue (classifier deploy, PII-filter rules update, policy-engine rule-set reload).
 - **Shape B example.** A reliability remediation weakened the defensive posture. Use the chapter 02 §1.2 archetype or an invented analogue (fallback contract engaged on a provider lacking defensive parity, worker-circuit breaker tripped past a defensive heuristic window, timeout widened to a value that defeats an injection-suppression rule).
 - **Shape C example.** A shared root cause crossed both domains. Use the chapter 02 §1.3 archetype (retrieval-index poisoning) or an invented analogue (upstream provider's silent model change crossed both quality and defensive surfaces, agent-tool-contract change produced both a cost cascade and a privilege-escalation path).
 
-Each worked example is at least 600 words of substantive content. Narratives separate observation from inference. Action items have specific owners (names or role-handles), specific due dates (days or weeks from the incident), and specific fixture classes.
+Each worked example fills the template end to end — narrative, three detail blocks, extended root cause selected from the Part 1 taxonomy, and five or more action items drawing from the Part 1 fixture-class vocabulary. Each example is at least 600 words of substantive content. Narratives separate observation from inference. Action items have specific owners (names or role-handles), specific due dates (days or weeks from the incident), and specific fixture classes; at least one action item per worked example uses a joint-specific fixture class (`contract`, `gate`, or `dashboard`), because the joint retro is the natural home of those artifacts.
 
 ### Part 3 — Commit the workflow
 
@@ -80,10 +122,11 @@ The workflow is signed by the AI SRE function lead and the `ai-infra-security` l
 
 - Two documents land in the exercise workspace: `joint-post-mortem-template.md` and `joint-post-mortem-examples.md`, plus the workflow commitment.
 - The template has all sections from chapter 02 §2 as fillable placeholders.
-- The three worked examples cover Shape A, B, C and each is substantive (≥ 600 words of content).
-- Every action item in the worked examples has owner, function, due date (days / weeks), and fixture class.
+- The three worked examples cover Shape A, B, C and each is substantive (≥ 600 words of content) with five or more action items.
+- Every action item in the worked examples has owner, function, due date (days / weeks), and fixture class drawn from the nine-class vocabulary (six base + three joint).
+- Each worked example uses at least one joint-specific fixture class (`contract`, `gate`, or `dashboard`).
 - The drafting cadence document is signed by both function leads (names or role-handles).
-- The extended root-cause taxonomy is reproduced in the template as a selectable list.
+- The extended root-cause taxonomy (eight base + seven joint categories) is reproduced in the template as a selectable list, matching the Part 1 reference block.
 
 ## Stretch goals
 
