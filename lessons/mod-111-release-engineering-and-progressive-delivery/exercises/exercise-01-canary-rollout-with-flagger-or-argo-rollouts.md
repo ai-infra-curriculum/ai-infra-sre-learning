@@ -50,12 +50,51 @@ Author the canary configuration under `release/canary-<route>.yaml`:
 - **Flagger route.** A `Canary` resource targeting the sample workload's `Deployment`, with `analysis.interval=2m`, `analysis.stepWeight=5`, `analysis.maxWeight=50`, and `analysis.match` scoping to a dogfood cohort via a header (`x-user-class: dogfood`). The abbreviated example from chapter 01 §7 is the starting point.
 - **Argo Rollouts route.** A `Rollout` resource with an analysis template-referenced `canaryStep` sequence, equivalent cohort matching via `setHeaderRoute`, and the same analysis metric queries.
 
-Author at least four `AnalysisTemplate`s (Argo Rollouts) or `MetricTemplate`s (Flagger):
+Author at least four `AnalysisTemplate`s (Argo Rollouts) or `MetricTemplate`s (Flagger). Each template is a named Prometheus query with a pre-committed threshold. The query shapes below are the parse contract — the exact label matcher set, aggregation, and over-window are what the exercise grades against:
 
-1. `ttft-p95-vs-baseline` — Prometheus query that computes the p95 TTFT ratio of canary vs stable.
-2. `success-rate` — Prometheus query for 2xx-rate of canary.
-3. `judge-score-delta` — Prometheus query for the delta of judge score canary minus stable.
-4. `cost-per-request-ratio` — Prometheus query for the ratio of canary cost vs stable.
+```promql
+# ttft-p95-vs-baseline
+# p95 TTFT of canary divided by p95 TTFT of stable, over the analysis window.
+histogram_quantile(
+  0.95,
+  sum by (le) (rate(ttft_seconds_bucket{route="$route", version="canary"}[$interval]))
+)
+/
+histogram_quantile(
+  0.95,
+  sum by (le) (rate(ttft_seconds_bucket{route="$route", version="stable"}[$interval]))
+)
+
+# success-rate
+# Canary 2xx rate as a percentage, over the analysis window.
+100 *
+sum(rate(request_success_total{route="$route", version="canary"}[$interval]))
+/
+sum(rate(request_total{route="$route", version="canary"}[$interval]))
+
+# judge-score-delta
+# Mean judge-score of canary minus mean judge-score of stable, over the analysis window.
+avg_over_time(canary_judge_score{route="$route", version="canary"}[$interval])
+-
+avg_over_time(canary_judge_score{route="$route", version="stable"}[$interval])
+
+# cost-per-request-ratio
+# Mean cost-per-request of canary divided by mean cost-per-request of stable.
+avg_over_time(cost_per_request_usd{route="$route", version="canary"}[$interval])
+/
+avg_over_time(cost_per_request_usd{route="$route", version="stable"}[$interval])
+```
+
+The pre-committed thresholds the canary resource references these templates with (from chapter 01 §7, reproduced as the contract):
+
+| Template | `thresholdRange` | Analysis interval | Rationale |
+|----------|------------------|-------------------|-----------|
+| `ttft-p95-vs-baseline` | `{ max: 1.15 }` | 2m | p95 TTFT must stay within 15% of stable. |
+| `success-rate` | `{ min: 99.0 }` | 2m | Canary 2xx rate must hold above 99%. |
+| `judge-score-delta` | `{ min: -0.05, max: 0.1 }` | 5m | Bounded quality drift; §3.2 of chapter 01 writes the bound. |
+| `cost-per-request-ratio` | `{ max: 1.20 }` | 5m | Cost must not exceed 1.2× stable. |
+
+A fleet whose observed variance differs from these defaults is free to widen or tighten — but the delta from these defaults is documented in the rollout note, not silently chosen.
 
 Commit all templates to `release/analysis/` in Git. Dashboards are for inspection; the templates are the source of truth.
 
@@ -116,9 +155,9 @@ A short rollout note (≤ 600 words) covering:
 ## Acceptance criteria
 
 - A controller installed on a non-production cluster with scoped RBAC, version documented.
-- Analysis templates committed to Git with Prometheus query shapes documented.
+- Analysis templates committed to Git whose Prometheus queries match the four parse-contract shapes above (label matchers, aggregation, over-window), and whose `thresholdRange` values either match the pre-committed table or document the per-fleet delta in the rollout note.
 - One clean canary run with per-step verdicts.
-- One rollback dry-run with timings and metric trace.
+- One rollback dry-run with timings and metric trace, including which of the four templates fired.
 - A sample workload emitting the four signals with a `version` label.
 - The rollout note (≤ 600 words) summarising the run and open items.
 
