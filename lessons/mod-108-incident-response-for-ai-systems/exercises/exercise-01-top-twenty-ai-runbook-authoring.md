@@ -30,9 +30,27 @@ Alternative sets are acceptable if they still cover the three categories. Justif
 
 ### Part 2 — Author the runbooks
 
-Each runbook is a Markdown file in a directory named `runbooks/` (or an equivalent location in the learner's environment). Each file begins with the YAML header from chapter 01 §4 and includes all seven sections from chapter 01 §1 populated with environment-specific content:
+Each runbook is a Markdown file in a directory named `runbooks/` (or an equivalent location in the learner's environment). Each file begins with the YAML header from chapter 01 §4 (reproduced below as the parse contract) and includes all seven sections from chapter 01 §1 populated with environment-specific content:
 
-- **Header.** `runbook_id`, title, symptom, default severity, severity ladder, peer owner, related runbooks, mapped `mod-105` class, fixture back-feed hints, `last_reviewed` date.
+```yaml
+---
+runbook_id: rb-<slug>
+title: <human-readable title>
+symptom: <one-sentence symptom with the specific signal name>
+severity_default: <SEV-1 | SEV-2 | SEV-3>
+severity_ladder:
+  sev2: <condition that escalates to SEV-2>
+  sev1: <condition that escalates to SEV-1>
+peer_owner: <peer-role-slug, not a person>
+related_runbooks:
+  - rb-<slug>
+mod_105_class: <recognise-and-route class this maps to>
+fixture_backfeed: [<alert | canary-prompt-set | eval-case | load-shape | chaos-experiment | runbook-amendment>, ...]
+last_reviewed: <YYYY-MM-DD>
+---
+```
+
+- **Header.** All fields above populated. `peer_owner` is a rotation slug, not a named human. `mod_105_class` is one of the recognise-and-route classes from `mod-105`.
 - **Detection signals.** Specific metric or query names. Not "the time-to-first-token metric" — the exact name, dashboard panel, or PromQL / LogQL / DataDog / Honeycomb-shaped query. If the metric does not yet exist in the chosen environment, name it and mark `(proposed)`. Include the expected lag between root cause and signal.
 - **Confirm checklist.** Four to six specific questions the on-call answers yes / no / unknown, each with the system they consult.
 - **Mitigation menu.** A ranked list of 3–5 mitigations, each tagged with blast radius (user / dev / fleet), reversibility (one-command vs. coordinated unwind), pre-conditions, and expected time-to-effect.
@@ -72,6 +90,8 @@ A one-page cover note (≤ 700 words) that explains:
 
 - Five Markdown runbooks in `runbooks/` named `rb-<slug>.md`, each with parseable YAML header, all seven sections populated, and the environment-specific content described above.
 - Coverage of serving-path, quality-path, and infrastructure-path categories, with at least one runbook per category.
+- Every detection signal cites a real metric / query / panel identifier, or an identifier marked `(proposed)` with a matching gap entry in the cover note.
+- Every mitigation carries blast-radius, reversibility, pre-conditions, and expected time-to-effect tags.
 - Cover note that names the environment, the observability stack, the gaps, and the introduction plan.
 - No "TBD" or placeholder content in any of the five runbooks.
 - Runbook IDs are stable, kebab-case, and prefixed `rb-`.
