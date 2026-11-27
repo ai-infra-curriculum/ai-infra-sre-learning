@@ -20,7 +20,15 @@ Work in three parts.
 
 ### Part 1 — Pick the five runbooks
 
-Choose five runbooks from the twenty described in chapter 01 §3, covering at least three of the categories named in chapter 01 §2 (serving-path, quality-path, infrastructure-path). A balanced default is:
+Choose five runbooks from the twenty described in chapter 01 §3, covering at least three of the categories named in chapter 01 §2 (serving-path, quality-path, infrastructure-path). The three categories are the fixed grouping from chapter 01 §2 — reproduced here so your selection can be checked against it:
+
+| Category | Runbooks (chapter 01 §3) |
+|---|---|
+| `serving-path` | `rb-ttft-regression`, `rb-tpot-regression`, `rb-cache-hit-cliff`, `rb-preemption-spike`, `rb-structured-output-break`, `rb-streaming-stall` |
+| `quality-path` | `rb-hallucination-rate-spike`, `rb-toxic-output-blast`, `rb-refusal-rate-spike`, `rb-tool-call-cascade`, `rb-embedding-drift`, `rb-judge-model-drift`, `rb-eval-set-poisoning`, `rb-retrieval-index-staleness` |
+| `infrastructure-path` | `rb-provider-degraded-fallback`, `rb-gpu-driver-ecc-xid`, `rb-nccl-hang-straggler`, `rb-weight-corruption`, `rb-model-swap-rollback`, `rb-cost-blow-up` |
+
+A balanced default set:
 
 - Serving-path: `rb-ttft-regression` and `rb-cache-hit-cliff`.
 - Quality-path: `rb-hallucination-rate-spike`.
@@ -51,12 +59,55 @@ last_reviewed: <YYYY-MM-DD>
 ```
 
 - **Header.** All fields above populated. `peer_owner` is a rotation slug, not a named human. `mod_105_class` is one of the recognise-and-route classes from `mod-105`.
-- **Detection signals.** Specific metric or query names. Not "the time-to-first-token metric" — the exact name, dashboard panel, or PromQL / LogQL / DataDog / Honeycomb-shaped query. If the metric does not yet exist in the chosen environment, name it and mark `(proposed)`. Include the expected lag between root cause and signal.
-- **Confirm checklist.** Four to six specific questions the on-call answers yes / no / unknown, each with the system they consult.
-- **Mitigation menu.** A ranked list of 3–5 mitigations, each tagged with blast radius (user / dev / fleet), reversibility (one-command vs. coordinated unwind), pre-conditions, and expected time-to-effect.
-- **Handoff.** The specific rotation to page (by role, not by name), the structured payload shape to send them, and the explicit severity-escalation conditions.
-- **User communication.** A one-paragraph status-page template with named placeholders, or an explicit statement that this class does not require user-facing communication.
-- **Fixture back-feed.** A one-line note gesturing to chapter 05's six-class decision tree with candidates specific to this runbook class.
+  - `peer_owner` draws from the chapter 07 peer-role slug set (reproduced from chapter 01 §3 usage — pick one; compound owners go in the handoff section, not the header): `ai-infra-inference-engineer`, `ai-infra-performance`, `ai-infra-platform`, `ai-infra-pipeline`, `ai-infra-ml-platform`, `ai-eval-engineer`, `ai-risk-engineer`, `ai-engineering`, `finops`, `serving-gateway-owner`.
+  - `mod_105_class` draws from the ten failure classes in `mod-105` chapter 01 §2: `silent-output-drift`, `hallucination-rate-spike`, `toxic-output-blast`, `refusal-rate-spike`, `prompt-cache-cliff`, `retrieval-freshness-regression`, `agent-tool-call-cascade`, `judge-model-drift`, `provider-degraded-mode`, `policy-safety-regression`. If the runbook class has no matching `mod-105` entry (the infrastructure-path hardware runbooks typically do not), set the value to `n/a` and name the grounding chapter in the body.
+  - `fixture_backfeed` draws from the six-class vocabulary in chapter 05 §1: `alert`, `canary-prompt-set`, `eval-case`, `load-shape`, `chaos-experiment`, `runbook-amendment`. List 1–3 candidates; the specific entries land in the Fixture back-feed section.
+- **Detection signals.** Specific metric or query names. Not "the time-to-first-token metric" — the exact name, dashboard panel, or PromQL / LogQL / DataDog / Honeycomb-shaped query. Each signal entry carries the four sub-fields from chapter 01 §1.2 as its parse contract:
+
+  | Sub-field | Content |
+  |---|---|
+  | `name` | Exact metric / query identifier (e.g., `inference_ttft_seconds`, not "TTFT"). Mark `(proposed)` if not yet in the stack. |
+  | `shape` | Threshold or anomaly shape — absolute value, relative to baseline, z-score, or EWMA burn. |
+  | `panel` | Durable dashboard-panel link (named panel URL, not a Grafana ad-hoc URL). |
+  | `expected_lag` | Expected delay between root cause and signal firing. |
+
+- **Confirm checklist.** Four to six specific questions the on-call answers yes / no / unknown. Each row has the question, the system consulted, and the default answer space:
+
+  | Sub-field | Content |
+  |---|---|
+  | `question` | Specific yes/no/unknown question (scope, correlation, baseline, upstream, downstream — the five from chapter 01 §1.3). |
+  | `system` | The named system the on-call opens to answer it (dashboard, status page, deploy-event log, vendor ingestor, support queue). |
+  | `answer_space` | `yes` / `no` / `unknown`. Free-form answers are not a checklist. |
+
+- **Mitigation menu.** A ranked list of 3–5 mitigations. Each entry carries the four tags from chapter 01 §1.4:
+
+  | Sub-field | Vocabulary |
+  |---|---|
+  | `blast_radius` | `user` (user-visible) · `dev` (dev / internal only) · `fleet` (fleet-wide). |
+  | `reversibility` | `one-command` (single revert / breaker-close) · `coordinated-unwind` (requires peer handoff to reverse). |
+  | `preconditions` | The signal or state that makes the mitigation safe (e.g., "prior version's eval score still green"). |
+  | `time_to_effect` | Expected propagation time (e.g., `30 s` for a router breaker, `2–3 min` for pod restart, `10 min` for model-swap). |
+
+  Rank by lowest-blast-radius-first, then one-command-first. Roll-back as the first entry is almost always wrong for AI incidents — see Starter guidance.
+
+- **Handoff.** The specific rotation to page (by role, not by name), the structured payload shape to send them, and the explicit severity-escalation conditions. The payload shape is the chapter 01 §1.5 contract:
+
+  ```yaml
+  handoff_payload:
+    incident_id: <IC-assigned ID>
+    runbook_id: rb-<slug>
+    symptom_window: <start_ts .. end_ts, UTC>
+    scope: <routes / models / regions / cohorts affected>
+    correlated_change: <deploy / config / vendor event in the window, or null>
+    confirm_state: <summary of yes/no/unknown answers>
+    mitigations_tried: [<mitigation_rank>, ...]
+    next_decision: <the question the peer must answer>
+  ```
+
+  Severity-escalation conditions are explicit: name the metric / state transition that moves SEV-3 → SEV-2 or SEV-2 → SEV-1.
+
+- **User communication.** A one-paragraph status-page template with named placeholders, or an explicit statement that this class does not require user-facing communication. For safety-adjacent runbooks (`rb-toxic-output-blast`, `rb-weight-corruption`), note that legal / PR owns the externally visible statement per chapter 01 §3.6 and chapter 06.
+- **Fixture back-feed.** A one-line note gesturing to chapter 05's six-class decision tree with candidates specific to this runbook class. Name each candidate by its chapter 05 §1 class (`alert`, `canary-prompt-set`, `eval-case`, `load-shape`, `chaos-experiment`, `runbook-amendment`) and the surface it lands on.
 
 ### Part 3 — Cover note
 
@@ -89,9 +140,13 @@ A one-page cover note (≤ 700 words) that explains:
 ## Acceptance criteria
 
 - Five Markdown runbooks in `runbooks/` named `rb-<slug>.md`, each with parseable YAML header, all seven sections populated, and the environment-specific content described above.
-- Coverage of serving-path, quality-path, and infrastructure-path categories, with at least one runbook per category.
-- Every detection signal cites a real metric / query / panel identifier, or an identifier marked `(proposed)` with a matching gap entry in the cover note.
-- Every mitigation carries blast-radius, reversibility, pre-conditions, and expected time-to-effect tags.
+- Coverage of serving-path, quality-path, and infrastructure-path categories, with at least one runbook per category drawn from the Part 1 category table.
+- Every YAML header populates all ten fields from the §4 contract. `peer_owner` uses one of the ten chapter-reproduced peer-role slugs. `mod_105_class` is one of the ten `mod-105` chapter 01 §2 class slugs or the explicit `n/a` value. `fixture_backfeed` uses only the six class slugs from chapter 05 §1.
+- Every detection signal cites a real metric / query / panel identifier, or an identifier marked `(proposed)` with a matching gap entry in the cover note. Each signal entry includes all four sub-fields (`name`, `shape`, `panel`, `expected_lag`).
+- Every confirm-checklist row has the three sub-fields (`question`, `system`, `answer_space`) and the answer space is restricted to `yes` / `no` / `unknown`.
+- Every mitigation carries all four tags using the controlled vocabulary above: `blast_radius` ∈ {`user`, `dev`, `fleet`}, `reversibility` ∈ {`one-command`, `coordinated-unwind`}, `preconditions`, `time_to_effect`.
+- Mitigation entries are ranked lowest-blast-radius-first. Roll-back appears as the first entry only when a correlated recent deploy is named in the preconditions.
+- Every runbook includes the handoff payload block with all eight keys from the §1.5 contract and names the severity-escalation metric / state transition explicitly.
 - Cover note that names the environment, the observability stack, the gaps, and the introduction plan.
 - No "TBD" or placeholder content in any of the five runbooks.
 - Runbook IDs are stable, kebab-case, and prefixed `rb-`.
